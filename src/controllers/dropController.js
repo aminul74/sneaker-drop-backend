@@ -1,7 +1,6 @@
 const { sequelize, Drop, Reservation, Purchase, User } = require("../models");
 const { Op } = require("sequelize");
 
-
 // CREATE DROP
 exports.createDrop = async (req, res) => {
   try {
@@ -21,7 +20,6 @@ exports.createDrop = async (req, res) => {
   }
 };
 
-
 // GET ALL DROPS WITH TOP 3 BUYERS
 exports.getDrops = async (req, res) => {
   const drops = await Drop.findAll({
@@ -37,7 +35,6 @@ exports.getDrops = async (req, res) => {
 
   res.json(drops);
 };
-
 
 // RESERVE (ATOMIC)
 exports.reserveItem = async (req, res) => {
@@ -66,12 +63,13 @@ exports.reserveItem = async (req, res) => {
         DropId: dropId,
         expires_at: new Date(Date.now() + 60000),
       },
-      { transaction }
+      { transaction },
     );
 
     await transaction.commit();
 
-    global.io.emit("stock_update", {
+    // Emit stock update to all connected clients
+    global.io.to("drops").emit("stock_update", {
       dropId,
       available_stock: drop.available_stock,
     });
@@ -83,24 +81,38 @@ exports.reserveItem = async (req, res) => {
   }
 };
 
-
 // COMPLETE PURCHASE
 exports.completePurchase = async (req, res) => {
   const { reservationId } = req.body;
 
-  const reservation = await Reservation.findByPk(reservationId);
+  const reservation = await Reservation.findByPk(reservationId, {
+    include: ["Drop"],
+  });
 
   if (!reservation || reservation.status !== "active") {
-    return res.status(400).json({ message: "Invalid reservation" });
+    return res.status(410).json({ error: "Reservation expired or invalid" });
+  }
+
+  if (new Date() > new Date(reservation.expires_at)) {
+    reservation.status = "expired";
+    await reservation.save();
+    return res.status(410).json({ error: "Reservation expired" });
   }
 
   reservation.status = "completed";
   await reservation.save();
 
-  await Purchase.create({
+  const purchase = await Purchase.create({
     UserId: reservation.UserId,
     DropId: reservation.DropId,
   });
 
-  res.json({ message: "Purchase successful" });
+  // Emit purchase update to all clients
+  global.io.to("drops").emit("purchase_complete", {
+    dropId: reservation.DropId,
+    userId: reservation.UserId,
+    purchaseId: purchase.id,
+  });
+
+  res.json({ message: "Purchase successful", purchase });
 };

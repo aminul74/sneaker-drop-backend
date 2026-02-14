@@ -19,9 +19,10 @@ function startExpirationJob() {
       reservation.status = "expired";
       await reservation.save();
 
-      global.io.emit("stock_update", {
+      global.io.to("drops").emit("stock_update", {
         dropId: drop.id,
         available_stock: drop.available_stock,
+        reason: "reservation_expired",
       });
     }
   }, 5000);
