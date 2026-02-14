@@ -1,7 +1,7 @@
 {
   "name": "sneaker-drop-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Real-time sneaker drop management system with inventory reservation and automatic expiration handling",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -9,7 +9,7 @@
     "dev": "nodemon src/server.js",
     "seed": "node src/seeds/seed.js"
   },
-  "keywords": [],
+  "keywords": ["sneaker", "drop", "inventory", "real-time", "websocket", "express", "postgresql"],
   "author": "",
   "license": "ISC",
   "dependencies": {
