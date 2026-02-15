@@ -1,5 +1,5 @@
-const reservationRepository = require("../repositories/reservationRepository");
-const dropService = require("../services/dropService");
+const reservationRepository = require("../repositories/reservation.repository");
+const dropService = require("../services/drop.services");
 const { EXPIRATION_CHECK_INTERVAL_MS } = require("../config/constants");
 
 /**

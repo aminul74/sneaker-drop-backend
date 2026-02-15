@@ -22,7 +22,8 @@ async function seedDatabase() {
         total_stock: 50,
         available_stock: 50,
         start_time: new Date(),
-        image_url: null,
+        image_url:
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80",
       },
       {
         name: "Adidas Yeezy Boost 350 V2",
@@ -30,7 +31,8 @@ async function seedDatabase() {
         total_stock: 30,
         available_stock: 30,
         start_time: new Date(),
-        image_url: null,
+        image_url:
+          "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=500&q=80",
       },
       {
         name: "Nike Dunk Low Panda",
@@ -38,7 +40,8 @@ async function seedDatabase() {
         total_stock: 100,
         available_stock: 100,
         start_time: new Date(Date.now() + 2 * 60 * 60 * 1000),
-        image_url: null,
+        image_url:
+          "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&q=80",
       },
       {
         name: "New Balance 550 White Green",
@@ -46,7 +49,8 @@ async function seedDatabase() {
         total_stock: 75,
         available_stock: 75,
         start_time: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        image_url: null,
+        image_url:
+          "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&q=80",
       },
       {
         name: "Converse Chuck 70 High Top",
@@ -54,7 +58,8 @@ async function seedDatabase() {
         total_stock: 200,
         available_stock: 200,
         start_time: new Date(Date.now() - 1 * 60 * 60 * 1000),
-        image_url: null,
+        image_url:
+          "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&q=80",
       },
       {
         name: "Vans Old Skool Black White",
@@ -62,7 +67,8 @@ async function seedDatabase() {
         total_stock: 150,
         available_stock: 150,
         start_time: new Date(),
-        image_url: null,
+        image_url:
+          "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=500&q=80",
       },
     ]);
 

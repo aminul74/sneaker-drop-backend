@@ -1,7 +1,7 @@
 const { sequelize } = require("../models");
-const dropRepository = require("../repositories/dropRepository");
-const reservationRepository = require("../repositories/reservationRepository");
-const purchaseRepository = require("../repositories/purchaseRepository");
+const dropRepository = require("../repositories/drop.repository");
+const reservationRepository = require("../repositories/reservation.repository");
+const purchaseRepository = require("../repositories/purchase.repository");
 const {
   RESERVATION_DURATION_MS,
   DROPS_ROOM,

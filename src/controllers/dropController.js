@@ -1,12 +1,19 @@
-const dropService = require("../services/dropService");
+const dropService = require("../services/drop.services");
+const CreateDropDTO = require("../dtos/create-drop.dto");
+const ReserveItemDTO = require("../dtos/reserve-item.dto");
+const CompletePurchaseDTO = require("../dtos/complete-purchase.dto");
+const DropResponseDTO = require("../dtos/drop-response.dto");
+const ReservationResponseDTO = require("../dtos/reservation-response.dto");
+const PurchaseResponseDTO = require("../dtos/purchase-response.dto");
 
 /**
  * Create a new drop
  */
 exports.createDrop = async (req, res, next) => {
   try {
-    const drop = await dropService.createDrop(req.body);
-    res.json(drop);
+    const createDropDTO = new CreateDropDTO(req.body);
+    const drop = await dropService.createDrop(createDropDTO);
+    res.json(new DropResponseDTO(drop));
   } catch (error) {
     next(error);
   }
@@ -18,7 +25,7 @@ exports.createDrop = async (req, res, next) => {
 exports.getDrops = async (req, res, next) => {
   try {
     const drops = await dropService.getAllDropsWithBuyers();
-    res.json(drops);
+    res.json(drops.map((drop) => new DropResponseDTO(drop)));
   } catch (error) {
     next(error);
   }
@@ -29,9 +36,12 @@ exports.getDrops = async (req, res, next) => {
  */
 exports.reserveItem = async (req, res, next) => {
   try {
-    const { dropId, userId } = req.body;
-    const reservation = await dropService.reserveItem(dropId, userId);
-    res.json(reservation);
+    const reserveItemDTO = new ReserveItemDTO(req.body);
+    const reservation = await dropService.reserveItem(
+      reserveItemDTO.dropId,
+      reserveItemDTO.userId,
+    );
+    res.json(new ReservationResponseDTO(reservation));
   } catch (error) {
     next(error);
   }
@@ -42,9 +52,14 @@ exports.reserveItem = async (req, res, next) => {
  */
 exports.completePurchase = async (req, res, next) => {
   try {
-    const { reservationId } = req.body;
-    const result = await dropService.completePurchase(reservationId);
-    res.json({ message: "Purchase successful", purchase: result.purchase });
+    const completePurchaseDTO = new CompletePurchaseDTO(req.body);
+    const result = await dropService.completePurchase(
+      completePurchaseDTO.reservationId,
+    );
+    res.json({
+      message: "Purchase successful",
+      purchase: new PurchaseResponseDTO(result.purchase),
+    });
   } catch (error) {
     next(error);
   }
