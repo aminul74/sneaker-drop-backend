@@ -39,3 +39,5 @@ build/
 *.pid
 *.seed
 *.pid.lock
+
+.env
