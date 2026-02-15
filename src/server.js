@@ -5,15 +5,22 @@ require("dotenv").config();
 
 const { sequelize } = require("./models");
 const dropRoutes = require("./routes/drop.routes");
-const initSocket = require("./socket");
-const startExpirationJob = require("./jobs/expirationJob");
 const {
   errorHandler,
   notFound,
 } = require("./middleware/error-handler.middleware");
 
+// Environment detection
+const isVercel = process.env.VERCEL === "1";
+const isLocal = !isVercel && process.env.NODE_ENV !== "production";
+
 const app = express();
-const server = http.createServer(app);
+
+// Only create HTTP server for local development with WebSocket
+let server;
+if (isLocal) {
+  server = http.createServer(app);
+}
 
 // Middlewares
 app.use(cors());
@@ -31,20 +38,50 @@ app.use("/api/drops", dropRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// Initialize Socket.IO and background jobs
-initSocket(server);
-startExpirationJob();
+// Initialize database and start server
+async function startServer() {
+  try {
+    await sequelize.sync();
+    console.log("Database synced");
 
-// Database sync and server start
-sequelize.sync().then(() => {
-  console.log("Database synced");
-  server.listen(process.env.PORT, () =>
-    console.log(`Server running on port ${process.env.PORT}`),
-  );
-});
+    // Initialize features based on environment
+    if (isLocal) {
+      const initSocket = require("./socket");
+      const startExpirationJob = require("./jobs/expirationJob");
 
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (err) => {
-  console.error("Unhandled Rejection:", err.message);
-  server.close(() => process.exit(1));
-});
+      initSocket(server);
+      startExpirationJob();
+
+      const port = process.env.PORT || 3000;
+      server.listen(port, () => {
+        console.log(`Server running locally on port ${port}`);
+      });
+
+      // Handle unhandled promise rejections (local)
+      process.on("unhandledRejection", (err) => {
+        console.error("Unhandled Rejection:", err.message);
+        server.close(() => process.exit(1));
+      });
+    } else if (isVercel) {
+      console.log("Server running on Vercel (serverless)");
+    }
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    if (isLocal) {
+      process.exit(1);
+    }
+  }
+}
+
+// Start server for local development
+if (isLocal) {
+  startServer();
+} else {
+  // Initialize database for Vercel
+  sequelize.sync().catch((err) => {
+    console.error("Database sync failed:", err);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;
